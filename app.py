@@ -1,4 +1,9 @@
-﻿import streamlit as st
+﻿
+import streamlit as st
+
+# ✅ 페이지 설정은 가장 위에 위치해야 함
+st.set_page_config(page_title="해수욕장 방문자 예측 시스템", layout="wide")
+
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
@@ -26,9 +31,6 @@ beach_dict = {
     for sido in sido_list
     for sigungu in sigungu_dict[sido]
 }
-
-# ✅ 페이지 설정
-st.set_page_config(page_title="해수욕장 방문자 예측 시스템", layout="wide")
 
 # ✅ 스타일
 st.markdown("""
@@ -72,7 +74,7 @@ st.markdown("<div class='title'>🏖️ 2025 해수욕장 방문자 예측 시�
 st.markdown("<div class='subtitle'>해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; font-size:17px; margin-bottom:1rem;'>📍 전국 해수욕장의 예상 방문자 수와 혼잡도를 날짜별로 확인해보세요.</p>", unsafe_allow_html=True)
 
-# ✅ 사용자 선택 UI (시/도 → 시/군/구 → 해수욕장)
+# ✅ 사용자 선택 UI
 selected_sido = st.selectbox("📍 시/도를 선택하세요", sido_list)
 
 if selected_sido:
@@ -81,10 +83,9 @@ if selected_sido:
     if selected_sigungu:
         selected_beach = st.selectbox("🏖️ 해수욕장을 선택하세요", beach_dict[(selected_sido, selected_sigungu)])
 
-        # 선택된 해수욕장 운영기간 안내
+        # 운영기간 안내
         beach_dates = df[df["해수욕장이름"] == selected_beach]["해수욕장일일일자"]
         open_date, close_date = beach_dates.min().date(), beach_dates.max().date()
-
         st.markdown(f"📅 **{selected_beach}**의 예상 운영 기간은 **{open_date}부터 {close_date}까지**입니다.")
 
         # 날짜 선택
@@ -96,7 +97,6 @@ if selected_sido:
             if not row.empty:
                 visitors = int(row["예상 방문자수"].values[0])
                 level = row["예상 혼잡도"].values[0]
-
                 st.markdown(f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>👥 예상 방문자수: <b>{visitors:,}명</b><br>🔵 예상 혼잡도: <b>{level}</b></div>", unsafe_allow_html=True)
             else:
                 st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
