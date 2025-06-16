@@ -1,7 +1,5 @@
 ﻿
 import streamlit as st
-
-# ✅ 페이지 설정은 가장 위에 위치해야 함
 st.set_page_config(page_title="해수욕장 방문자 예측 시스템", layout="wide")
 
 import pandas as pd
