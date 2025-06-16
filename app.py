@@ -85,6 +85,28 @@ if selected_sido:
             if not row.empty:
                 visitors = int(row["예상 방문자수"].values[0])
                 level = row["예상 혼잡도"].values[0]
-                st.markdown(f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>👥 예상 방문자수: <b>{visitors:,}명</b><br>🔵 예상 혼잡도: <b>{level}</b></div>", unsafe_allow_html=True)
+                
+                # 🧭 혼잡일 경우, 같은 지역 내 덜 혼잡한 해수욕장 추천
+                if level == "혼잡":
+                    st.markdown("⚠️ 현재 혼잡한 상태예요. 덜 붐비는 해수욕장을 추천해드릴게요.")
+
+                    alt = df[
+                        (df["시/도"] == row["시/도"].values[0]) &
+                        (df["시/군/구"] == row["시/군/구"].values[0]) &
+                        (df["해수욕장일일일자"] == pd.to_datetime(selected_date)) &
+                        (df["예상 혼잡도"].isin(["여유", "보통"])) &
+                        (df["해수욕장이름"] != selected_beach)
+                    ][["해수욕장이름", "예상 방문자수", "예상 혼잡도"]].sort_values("예상 방문자수")
+
+                    if alt.empty:
+                        st.info("같은 지역에 덜 혼잡한 다른 해수욕장이 없어요 😥")
+                    else:
+                        st.markdown("### 🧭 덜 혼잡한 인근 해수욕장 추천")
+                        st.dataframe(alt.rename(columns={
+                            "해수욕장이름": "해수욕장",
+                            "예상 방문자수": "예상 방문자수(명)",
+                            "예상 혼잡도": "혼잡도"
+                        }), hide_index=True)
+st.markdown(f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>👥 예상 방문자수: <b>{visitors:,}명</b><br>🔵 예상 혼잡도: <b>{level}</b></div>", unsafe_allow_html=True)
             else:
                 st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
