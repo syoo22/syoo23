@@ -1,6 +1,6 @@
-import streamlit as st
 st.set_page_config(page_title="해수욕장 방문자 예측 시스템", layout="wide")
 
+import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
