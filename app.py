@@ -32,6 +32,10 @@ st.title("🏖️ 2025 해수욕장 방문자 예측 시스템")
 st.markdown("해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!")
 st.markdown("📍 전국 해수욕장의 예상 방문자 수와 혼잡도를 날짜별로 확인해보세요.")
 
+# 초기 상태 설정
+if "show_result" not in st.session_state:
+    st.session_state["show_result"] = False
+
 selected_sido = st.selectbox("📍 시/도를 선택하세요", sido_list)
 
 if selected_sido:
@@ -45,9 +49,10 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
-        show_result = st.button("🔍 예측 결과 보기")
+        if st.button("🔍 예측 결과 보기"):
+            st.session_state["show_result"] = True
 
-        if show_result:
+        if st.session_state["show_result"]:
             row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
             if not row.empty:
                 visitors = int(row["예상 방문자수"].values[0])
@@ -71,6 +76,9 @@ if selected_sido:
                         "예상 방문자수": "예상 방문자수(명)",
                         "예상 혼잡도": "혼잡도"
                     }), hide_index=True)
+
+            else:
+                st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
 
         # ✅ 지도는 항상 아래 고정 출력 (렌더링 조건과 분리)
         st.markdown("### 🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도")
