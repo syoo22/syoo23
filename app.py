@@ -4,7 +4,7 @@ import folium
 from streamlit_folium import st_folium
 
 # ✅ 페이지 기본 설정
-st.set_page_config(page_title="혼잡한 곳은 SEA러!", layout="wide")
+st.set_page_config(page_title="혼잡한 바다는 SEA러!", layout="wide")
 
 # ✅ 배경 그라데이션 스타일 (B안)
 st.markdown("""
@@ -58,7 +58,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ✅ 상단 제목
-st.markdown('<h1 class="title">🌊 혼잡한 곳은 <span style="color:#0033cc;">SEA</span>러!</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="title">🌊 혼잡한 바다는 <span style="color:#0033cc;">SEA</span>러!</h1>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>', unsafe_allow_html=True)
 
 # ✅ CSV 데이터 로드
@@ -99,34 +99,38 @@ if not filtered.empty:
 else:
     st.warning("선택한 해수욕장과 날짜에 대한 예측 데이터가 없습니다.")
 
-# ✅ 전체 지도 시각화
-st.markdown('<h3 class="section-header">🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도</h3>', unsafe_allow_html=True)
-
+# ✅ 지도 시각화 (위도/경도 누락 방지 포함)
 selected_day_data = data[data["방문일자"] == pd.to_datetime(selected_date)]
 
 if selected_day_data.empty:
     st.warning("선택한 날짜에 대한 전국 해수욕장 데이터가 없습니다.")
 else:
-    # 지도 중심
-    map_center = [selected_day_data["위도"].mean(), selected_day_data["경도"].mean()]
-    m = folium.Map(location=map_center, zoom_start=7)
+    # ⚠️ 위도/경도 없는 행 제거
+    valid_data = selected_day_data.dropna(subset=["위도", "경도"])
 
-    def get_color(level):
-        if level == "여유":
-            return "green"
-        elif level == "보통":
-            return "orange"
-        else:
-            return "red"
+    if valid_data.empty:
+        st.warning("해당 날짜에 위도/경도 정보가 부족하여 지도를 표시할 수 없습니다.")
+    else:
+        map_center = [valid_data["위도"].mean(), valid_data["경도"].mean()]
+        m = folium.Map(location=map_center, zoom_start=7)
 
-    for _, row in selected_day_data.iterrows():
-        folium.CircleMarker(
-            location=[row["위도"], row["경도"]],
-            radius=6,
-            color=get_color(row["혼잡도"]),
-            fill=True,
-            fill_opacity=0.7,
-            popup=f"{row['해수욕장']}<br>방문자수: {row['예상방문자수']}명<br>혼잡도: {row['혼잡도']}"
-        ).add_to(m)
+        def get_color(level):
+            if level == "여유":
+                return "green"
+            elif level == "보통":
+                return "orange"
+            else:
+                return "red"
 
-    st_folium(m, width=900, height=500)
+        for _, row in valid_data.iterrows():
+            folium.CircleMarker(
+                location=[row["위도"], row["경도"]],
+                radius=6,
+                color=get_color(row["혼잡도"]),
+                fill=True,
+                fill_opacity=0.7,
+                popup=f"{row['해수욕장']}<br>방문자수: {row['예상방문자수']}명<br>혼잡도: {row['혼잡도']}"
+            ).add_to(m)
+
+        st_folium(m, width=900, height=500)
+
