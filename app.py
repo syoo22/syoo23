@@ -45,7 +45,9 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
-        if st.button("🔍 예측 결과 보기"):
+        show_result = st.button("🔍 예측 결과 보기")
+
+        if show_result:
             row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
             if not row.empty:
                 visitors = int(row["예상 방문자수"].values[0])
@@ -70,36 +72,31 @@ if selected_sido:
                         "예상 혼잡도": "혼잡도"
                     }), hide_index=True)
 
-                # ✅ 지도도 함께 보여주기
-                st.markdown("### 🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도")
+        # ✅ 지도는 항상 아래 고정 출력 (렌더링 조건과 분리)
+        st.markdown("### 🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도")
 
-                filtered = df[df["해수욕장일일일자"] == pd.to_datetime(selected_date)].dropna(subset=["위도", "경도"])
+        filtered = df[df["해수욕장일일일자"] == pd.to_datetime(selected_date)].dropna(subset=["위도", "경도"])
+        filtered["위도"] = pd.to_numeric(filtered["위도"], errors="coerce")
+        filtered["경도"] = pd.to_numeric(filtered["경도"], errors="coerce")
+        filtered = filtered.dropna(subset=["위도", "경도"])
 
-                # 👉 위도, 경도 숫자형으로 변환
-                filtered["위도"] = pd.to_numeric(filtered["위도"], errors="coerce")
-                filtered["경도"] = pd.to_numeric(filtered["경도"], errors="coerce")
-                filtered = filtered.dropna(subset=["위도", "경도"])
+        if not filtered.empty:
+            map_center = [filtered["위도"].mean(), filtered["경도"].mean()]
+            m = folium.Map(location=map_center, zoom_start=7)
 
-                if filtered.empty:
-                    st.warning("해당 날짜에 대한 지도 데이터가 없습니다.")
-                else:
-                    map_center = [filtered["위도"].mean(), filtered["경도"].mean()]
-                    m = folium.Map(location=map_center, zoom_start=7)
+            for _, row2 in filtered.iterrows():
+                color = "green" if row2["예상 혼잡도"] == "여유" else "orange" if row2["예상 혼잡도"] == "보통" else "red"
+                folium.CircleMarker(
+                    location=[row2["위도"], row2["경도"]],
+                    radius=6,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    fill_opacity=0.8,
+                    popup=f"{row2['해수욕장이름']}<br>방문자수: {int(row2['예상 방문자수'])}명<br>혼잡도: {row2['예상 혼잡도']}"
+                ).add_to(m)
 
-                    for _, row2 in filtered.iterrows():
-                        color = "green" if row2["예상 혼잡도"] == "여유" else "orange" if row2["예상 혼잡도"] == "보통" else "red"
-                        folium.CircleMarker(
-                            location=[row2["위도"], row2["경도"]],
-                            radius=6,
-                            color=color,
-                            fill=True,
-                            fill_color=color,
-                            fill_opacity=0.8,
-                            popup=f"{row2['해수욕장이름']}<br>방문자수: {int(row2['예상 방문자수'])}명<br>혼잡도: {row2['예상 혼잡도']}"
-                        ).add_to(m)
-
-                    st.markdown("🟢 여유 &nbsp;&nbsp;&nbsp; 🟡 보통 &nbsp;&nbsp;&nbsp; 🔴 혼잡", unsafe_allow_html=True)
-                    st_folium(m, width=1000, height=600)
-
-            else:
-                st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
+            st.markdown("🟢 여유 &nbsp;&nbsp;&nbsp; 🟡 보통 &nbsp;&nbsp;&nbsp; 🔴 혼잡", unsafe_allow_html=True)
+            st_folium(m, width=1000, height=600)
+        else:
+            st.warning("해당 날짜에 대한 지도 데이터가 없습니다.")
