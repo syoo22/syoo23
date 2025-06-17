@@ -18,11 +18,11 @@ st.markdown("""
 .title {
     text-align:center; font-size:40px; font-weight:800; color:#003366;
 }
-.title .blue { color:#0066ff; }
+.title .blue { color:#0066ff; }  <-- ✅ 이 줄 포함
 .subtitle {
     text-align:center; font-size:17px; color:#004080; margin-bottom:2rem;
 }
-.result-card{
+.result-card {
     background:#ffffffdd; padding:20px; border-radius:10px;
     box-shadow:0 4px 8px rgba(0,0,0,0.1); max-width:600px; margin:20px auto;
 }
