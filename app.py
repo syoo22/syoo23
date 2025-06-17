@@ -1,3 +1,4 @@
+
 import streamlit as st
 st.set_page_config(page_title="해수욕장 방문자 예측 시스템", layout="wide")
 
@@ -73,6 +74,11 @@ if selected_sido:
                 st.markdown("### 🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도")
 
                 filtered = df[df["해수욕장일일일자"] == pd.to_datetime(selected_date)].dropna(subset=["위도", "경도"])
+
+                # 👉 위도, 경도 숫자형으로 변환
+                filtered["위도"] = pd.to_numeric(filtered["위도"], errors="coerce")
+                filtered["경도"] = pd.to_numeric(filtered["경도"], errors="coerce")
+                filtered = filtered.dropna(subset=["위도", "경도"])
 
                 if filtered.empty:
                     st.warning("해당 날짜에 대한 지도 데이터가 없습니다.")
