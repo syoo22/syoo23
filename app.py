@@ -39,14 +39,14 @@ selected_sigungu = st.selectbox("🏙️ 시/군/구를 선택하세요", sorted
 filtered_region_df = filtered_sido_df[filtered_sido_df["시/군/구"] == selected_sigungu]
 
 # 해수욕장 선택
-selected_beach = st.selectbox("📍 해수욕장을 선택하세요", sorted(filtered_region_df["해수욕장"].unique()))
-filtered_beach_df = filtered_region_df[filtered_region_df["해수욕장"] == selected_beach]
+selected_beach = st.selectbox("📍 해수욕장을 선택하세요", sorted(filtered_region_df["해수욕장이름"].unique()))
+filtered_beach_df = filtered_region_df[filtered_region_df["해수욕장이름"] == selected_beach]
 
 # 날짜 선택
 selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=pd.to_datetime("2025-06-01"))
 
 # 예측 결과 확인
-if st.button("🔍 예측 결과 보기"):
+if st.button("🔍 예상 방문자수 보기"):
     result = filtered_beach_df[filtered_beach_df["해수욕장일일일자"] == pd.to_datetime(selected_date)]
 
     if not result.empty:
@@ -61,10 +61,10 @@ if st.button("🔍 예측 결과 보기"):
         </div>
         """, unsafe_allow_html=True)
     else:
-        st.warning("선택한 날짜에 해당하는 예측 데이터가 없습니다.")
+        st.warning("선택한 날짜에 해당하는 예측 데이터가 없습니다. 다른 날짜를 선택해주세요.")
 
 # ✅ 선택한 날짜 기준 전국 혼잡도 지도 시각화
-st.markdown("### 🗺️ 선택한 날짜 기준 전국 해수욕장 혼잡도 지도")
+st.markdown("### 🗺️ 전국 해수욕장 혼잡도 지도")
 
 selected_day_data = df[df["해수욕장일일일자"] == pd.to_datetime(selected_date)]
 
@@ -86,7 +86,7 @@ if not selected_day_data.empty:
         folium.CircleMarker(
             location=(row["위도"], row["경도"]),
             radius=6,
-            popup=folium.Popup(f"{row['해수욕장']}<br>예상 방문자수: {row['예상 방문자수']}명<br>혼잡도: {row['예상 혼잡도']}", max_width=250),
+            popup=folium.Popup(f"{row['해수욕장이름']}<br>예상 방문자수: {row['예상 방문자수']}명<br>혼잡도: {row['예상 혼잡도']}", max_width=250),
             color=color,
             fill=True,
             fill_opacity=0.7
