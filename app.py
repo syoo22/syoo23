@@ -115,6 +115,15 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
         st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
 
 # 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
+# ✅ 하단 흰 공간 제거용 CSS
+st.markdown("""
+    <style>
+    .block-container {
+        padding-bottom: 0rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown("---")
 st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
@@ -170,5 +179,5 @@ for _, row in df_grouped.iterrows():
 # 요약 문구 + 지도 출력
 beach_count = df_grouped['해수욕장이름'].nunique()
 st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
-st_data = st_folium(m, width="100%", height=600, returned_objects=[])
+st_data = st_folium(m, width="100%", height=580, returned_objects=[])
 
