@@ -184,6 +184,7 @@ if selected_sido:
                     m = folium.Map(location=selected_loc, zoom_start=10)
                     congestion_color = {"여유": "green", "보통": "orange"}
 
+                    # 🔹 덜 혼잡한 해수욕장 마커
                     for _, r in alt.iterrows():
                         folium.CircleMarker(
                             location=(r["위도"], r["경도"]),
@@ -196,5 +197,18 @@ if selected_sido:
                                 max_width=250
                             )
                         ).add_to(m)
+
+                    # 🔵 선택한 해수욕장 파란 마커로 따로 표시
+                    folium.CircleMarker(
+                        location=(row["위도"].values[0], row["경도"].values[0]),
+                        radius=10,
+                        color="blue",
+                        fill=True,
+                        fill_opacity=1.0,
+                        popup=folium.Popup(
+                            f"<b>{row['해수욕장이름'].values[0]}</b><br>👥 {int(row['예상 방문자수'].values[0])}명<br>혼잡도: {row['예상 혼잡도'].values[0]}",
+                            max_width=250
+                        )
+                    ).add_to(m)
 
                     st_folium(m, use_container_width=True, height=450)
