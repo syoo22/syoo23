@@ -119,6 +119,10 @@ st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 # 해수욕장별 총 방문자수 합산
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False)['예상 방문자수'].sum()
 
+# ✅ 위도/경도 숫자형으로 변환
+df_grouped['위도'] = pd.to_numeric(df_grouped['위도'], errors='coerce')
+df_grouped['경도'] = pd.to_numeric(df_grouped['경도'], errors='coerce')
+
 # 지도 중심 설정
 center_lat = df_grouped['위도'].mean()
 center_lon = df_grouped['경도'].mean()
