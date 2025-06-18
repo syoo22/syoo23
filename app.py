@@ -188,7 +188,7 @@ def get_color_by_congestion(level):
 for _, row in map_df.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
     popup_html = f"""
-    <div style="width:220px;">
+    <div style="width:260px;">
         <b>{row['해수욕장이름']}</b>
         <table style="margin-top:5px; width:100%; table-layout: fixed;">
             <tr>
