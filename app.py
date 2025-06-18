@@ -6,6 +6,7 @@ import folium
 from folium import CircleMarker
 from streamlit_folium import st_folium
 import branca.colormap as cm
+from folium import Popup
 
 # 1️⃣ 페이지 기본 설정 ─────────────────────────────────────────────
 st.set_page_config(page_title="혼잡한 바다는 SEA러!", layout="wide")
@@ -146,13 +147,24 @@ def get_color_by_congestion(level):
 # 마커 추가
 for _, row in df_grouped.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
+    
+    popup_html = f"""
+    <div style="width:160px;">
+        <b>{row['해수욕장이름']}</b><br>
+        👥 예상 방문자수: {int(row['예상 방문자수']):,}명<br>
+        🚦 혼잡도: <b>{row['예상 혼잡도']}</b>
+    </div>
+    """
+    
+    popup = Popup(popup_html, max_width=200)
+
     folium.CircleMarker(
         location=[row['위도'], row['경도']],
         radius=7,
         color=color,
         fill=True,
         fill_opacity=0.7,
-        popup=f"{row['해수욕장이름']}<br>예상 방문자수: {int(row['예상 방문자수']):,}명<br>혼잡도: {row['예상 혼잡도']}"
+        popup=popup
     ).add_to(m)
 
 # 요약 문구 + 지도 출력
