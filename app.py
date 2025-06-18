@@ -59,6 +59,18 @@ st.markdown("""
         margin-left: auto;
         margin-right: auto;
     }
+    /* ✅ 추가: 지도 아래 흰 여백 제거용 */
+    .element-container:has(iframe) {
+        padding-bottom: 0px !important;
+        margin-bottom: 0px !important;
+    }
+    iframe {
+        display: block;
+        margin: 0 auto;
+    }
+    .block-container {
+        padding-bottom: 0rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
