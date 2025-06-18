@@ -120,8 +120,9 @@ if selected_sido:
                         "예상 혼잡도": "혼잡도"
                     }), hide_index=True)
 
-                    # 지도 시각화
-                    st.markdown("### 🗺️ 덜 혼잡한 해수욕장 위치 보기")
+                with st.container():
+                    st.markdown("<h3 style='text-align:center;'>🌍 덜 혼잡한 해수욕장 위치 보기</h3>", unsafe_allow_html=True)
+
                     selected_loc = row[["위도", "경도"]].values[0]
                     m = folium.Map(location=selected_loc, zoom_start=10)
                     congestion_color = {"여유": "green", "보통": "orange"}
@@ -134,12 +135,9 @@ if selected_sido:
                             fill=True,
                             fill_opacity=0.7,
                             popup=folium.Popup(
-                                f"<b>{r['해수욕장이름']}</b><br>👥 {int(r['예상 방문자수']):,}명<br>혼잡도: {r['예상 혼잡도']}",
+                                f"<b>{r['해수욕장이름']}</b><br>👥 {int(r['예상 방문자수'])}명<br>혼잡도: {r['예상 혼잡도']}",
                                 max_width=250
                             )
                         ).add_to(m)
 
-                    st_folium(m, use_container_width=True, height=500)
-
-            else:
-                st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
+                    st_folium(m, use_container_width=True, height=600)
