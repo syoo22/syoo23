@@ -80,14 +80,21 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
+# 1. 버튼 상태 세션으로 관리
+if "show_result" not in st.session_state:
+    st.session_state.show_result = False
+
 if st.button("🔍 예측 결과 보기"):
+    st.session_state.show_result = True
+
+# 2. 버튼 클릭 후 계속 유지되도록 조건 변경
+if st.session_state.show_result:
     row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
     if not row.empty:
         visitors = int(row["예상 방문자수"].values[0])
         level = row["예상 혼잡도"].values[0]
-        st.markdown(f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>👥 예상 방문자수: <b>{visitors:,}명</b><br>🔵 예상 혼잡도: <b>{level}</b></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='result-card'>...</div>", unsafe_allow_html=True)
 
-        # 추천 출력
         st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
         alt = df[
             (df["시/도"] == row["시/도"].values[0]) &
@@ -99,35 +106,24 @@ if st.button("🔍 예측 결과 보기"):
         if alt.empty:
             st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
         else:
-            st.dataframe(alt.rename(columns={
-                "시/군/구": "시/군/구",
-                "해수욕장이름": "해수욕장",
-                "예상 방문자수": "예상 방문자수(명)",
-                "예상 혼잡도": "혼잡도"
-            }), hide_index=True)
+            st.dataframe(...)  # 표 출력
 
-            # 🌍 지도 시각화
+            # 지도 시각화
             st.markdown("### 🗺️ 덜 혼잡한 해수욕장 위치 보기")
-
             selected_loc = row[["위도", "경도"]].values[0]
             m = folium.Map(location=selected_loc, zoom_start=10)
-
             congestion_color = {"여유": "green", "보통": "orange"}
 
             for _, r in alt.iterrows():
-                name = r["해수욕장이름"]
-                visitors = int(r["예상 방문자수"])
-                level = r["예상 혼잡도"]
-                lat = r["위도"]
-                lon = r["경도"]
-
                 folium.CircleMarker(
-                    location=(lat, lon),
+                    location=(r["위도"], r["경도"]),
                     radius=8,
-                    color=congestion_color.get(level, "gray"),
+                    color=congestion_color.get(r["예상 혼잡도"], "gray"),
                     fill=True,
                     fill_opacity=0.7,
-                    popup=folium.Popup(f"<b>{name}</b><br>👥 {visitors:,}명<br>혼잡도: {level}", max_width=200),
+                    popup=folium.Popup(
+                        f"<b>{r['해수욕장이름']}</b><br>👥 {int(r['예상 방문자수']):,}명<br>혼잡도: {r['예상 혼잡도']}", max_width=200
+                    )
                 ).add_to(m)
 
             st_folium(m, width=700, height=500)
