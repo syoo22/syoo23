@@ -2,12 +2,14 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import folium
+from folium import CircleMarker
 from streamlit_folium import st_folium
+import branca.colormap as cm
 
-# 1️⃣ 기본 설정 ─────────────────────────────────────────────────
+# 1️⃣ 페이지 기본 설정 ─────────────────────────────────────────────
 st.set_page_config(page_title="혼잡한 바다는 SEA러!", layout="wide")
 
-# 2️⃣ CSS (바다색 그라데이션) ────────────────────────────────────
+# 2️⃣ CSS 스타일 ──────────────────────────────────────────────────
 st.markdown("""
 <style>
 .stApp {
@@ -18,7 +20,7 @@ st.markdown("""
 .title {
     text-align:center; font-size:40px; font-weight:800; color:#003366;
 }
-.title .blue { color:#0066ff; }  <-- ✅ 이 줄 포함
+.title .blue { color:#0066ff; }
 .subtitle {
     text-align:center; font-size:17px; color:#004080; margin-bottom:2rem;
 }
@@ -29,69 +31,52 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="title">🌊 혼잡한 바다는 <span class="blue">SEA</span>러!</div>',
-            unsafe_allow_html=True)
-st.markdown('<div class="subtitle">해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>',
-            unsafe_allow_html=True)
+st.markdown('<div class="title">🌊 혼잡한 바다는 <span class="blue">SEA</span>러!</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>', unsafe_allow_html=True)
 
-# 3️⃣ 데이터 로드 ────────────────────────────────────────────────
+# 3️⃣ 데이터 로딩 ─────────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    df = pd.read_csv("2025_해수욕장_예측결과_최종.csv")
+    df = pd.read_csv("beach_prediction_2025.csv")  # CSV 파일명을 영어로 바꿔서 관리하는 게 안전함
     df["해수욕장일일일자"] = pd.to_datetime(df["해수욕장일일일자"])
     return df
 
 df = load_data()
 
-# 4️⃣ 선택 리스트 준비 ───────────────────────────────────────────
+# 4️⃣ 지역별 선택 리스트 구성 ─────────────────────────────────────
 sido_list = sorted(df["시/도"].dropna().unique())
-
-# 시/군/구 딕셔너리
 sigungu_dict = {
     sido: sorted(df[df["시/도"] == sido]["시/군/구"].dropna().unique())
     for sido in sido_list
 }
+beach_dict = {
+    (sido, sigungu): sorted(df[(df["시/도"] == sido) & (df["시/군/구"] == sigungu)]["해수욕장이름"].dropna().unique())
+    for sido in sido_list for sigungu in sigungu_dict[sido]
+}
 
-# (시/도, 시/군/구) → 해수욕장 리스트 딕셔너리
-beach_dict = {}
-for sido in sido_list:
-    for sigungu in sigungu_dict[sido]:
-        beaches = df[(df["시/도"] == sido) & (df["시/군/구"] == sigungu)]["해수욕장이름"].dropna().unique()
-        beach_dict[(sido, sigungu)] = sorted(beaches)
-
-# 5️⃣ 위젯: 시/도 → 시/군/구 → 해수욕장 → 날짜 ──────────────────
+# 5️⃣ 사용자 입력 UI ──────────────────────────────────────────────
 selected_sido = st.selectbox("📌 시/도를 선택하세요", sido_list)
-
-# 시/군/구
 sigungu_options = sigungu_dict.get(selected_sido, [])
 selected_sigungu = st.selectbox("🏞️ 시/군/구를 선택하세요", sigungu_options)
-
-# 해수욕장
 beach_options = beach_dict.get((selected_sido, selected_sigungu), [])
+
 if beach_options:
     selected_beach = st.selectbox("🏖️ 해수욕장을 선택하세요", beach_options)
 else:
     selected_beach = None
     st.warning("선택한 시/군/구에 등록된 해수욕장이 없습니다.")
 
-# 날짜
 if selected_beach:
     beach_dates = df[df["해수욕장이름"] == selected_beach]["해수욕장일일일자"]
     open_date, close_date = beach_dates.min().date(), beach_dates.max().date()
     st.markdown(f"📅 **{selected_beach}** 운영 기간: **{open_date} ~ {close_date}**")
-
-    selected_date = st.date_input("📅 방문 날짜를 선택하세요",
-                                  value=open_date,
-                                  min_value=open_date,
-                                  max_value=close_date)
+    selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 else:
     selected_date = None
 
-# 6️⃣ 예측 결과 & 추천 ────────────────────────────────────────────
+# 6️⃣ 예측 결과 & 추천 출력 ──────────────────────────────────────
 if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
-    row = df[(df["해수욕장이름"] == selected_beach) &
-             (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
-    
+    row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
     if not row.empty:
         visitors = int(row["예상 방문자수"].iloc[0])
         level = row["예상 혼잡도"].iloc[0]
@@ -104,7 +89,6 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
         </div>
         """, unsafe_allow_html=True)
 
-        # 덜 혼잡한 추천
         st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
         alt = df[
             (df["시/도"] == selected_sido) &
@@ -112,7 +96,7 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
             (df["예상 혼잡도"].isin(["여유", "보통"])) &
             (df["해수욕장이름"] != selected_beach)
         ][["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도"]].sort_values("예상 방문자수")
-        
+
         if alt.empty:
             st.info("같은 시/도 내 덜 혼잡한 다른 해수욕장이 없어요 😥")
         else:
@@ -128,28 +112,19 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
     else:
         st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
 
+# 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
+st.markdown("---")
+st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
-        # ==========================
-# 📍 혼잡도 지도 시각화 코드
-# ==========================
-
-import folium
-from folium import CircleMarker
-from streamlit_folium import st_folium
-import branca.colormap as cm
-
-# CSV 불러오기
-df = pd.read_csv("2025_해수욕장_예측결과_최종.csv")
-
-# 해수욕장별 총 방문자수 집계
+# 해수욕장별 총 방문자수 합산
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False)['예상 방문자수'].sum()
 
-# 지도 중심 위치
+# 지도 중심 설정
 center_lat = df_grouped['위도'].mean()
 center_lon = df_grouped['경도'].mean()
 m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
 
-# 색상 맵 설정
+# 색상 컬러맵 설정
 min_val = df_grouped['예상 방문자수'].min()
 max_val = df_grouped['예상 방문자수'].max()
 colormap = cm.linear.YlOrRd_09.scale(min_val, max_val)
@@ -168,12 +143,7 @@ for _, row in df_grouped.iterrows():
 colormap.caption = '2025년 예상 방문자수 (혼잡도)'
 m.add_child(colormap)
 
-# Streamlit 출력
-st.markdown("---")
-st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
-
+# 요약 문구 + 지도 출력
 beach_count = df_grouped['해수욕장이름'].nunique()
 st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
-
 st_data = st_folium(m, width=800, height=600)
-
