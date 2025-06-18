@@ -215,7 +215,7 @@ for _, row in map_df.iterrows():
 beach_count = map_df['해수욕장이름'].nunique()
 st.markdown(f"✅ 현재 지도에는 **{beach_count}개 해수욕장**이 표시되어 있습니다.")
 
-# ✅ 스타일로 하단 여백 제거
+# ✅ 여백 제거 스타일
 st.markdown("""
 <style>
 iframe {
@@ -231,5 +231,5 @@ iframe {
 </style>
 """, unsafe_allow_html=True)
 
-# ✅ 지도 출력 (높이도 반응형으로 개선)
-st_folium(m, width="100%", height="70vh", returned_objects=[])
+# ✅ 지도 출력 (정수 높이로 수정)
+st_folium(m, width="100%", height=600, returned_objects=[])
