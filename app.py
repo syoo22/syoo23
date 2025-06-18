@@ -172,21 +172,21 @@ def get_color_by_congestion(level):
 for _, row in map_df.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
     
-    popup_html = f"""
-    <div style="width:200px;">
-        <b>{row['해수욕장이름']}</b>
-        <table style="margin-top:5px; width:100%;">
-            <tr>
-                <td>👥 예상 방문자수</td>
-                <td style="text-align:right;">{int(row['예상 방문자수']):,}명</td>
-            </tr>
-            <tr>
-                <td>🚦 혼잡도</td>
-                <td style="text-align:right;"><b>{row['예상 혼잡도']}</b></td>
-            </tr>
-        </table>
-    </div>
-    """
+popup_html = f"""
+<div style="width:220px;">
+    <b>{row['해수욕장이름']}</b>
+    <table style="margin-top:5px; width:100%; table-layout: fixed;">
+        <tr>
+            <td style="white-space:nowrap;">👥 예상 방문자수</td>
+            <td style="text-align:right; white-space:nowrap;">{int(row['예상 방문자수']):,}명</td>
+        </tr>
+        <tr>
+            <td style="white-space:nowrap;">🚦 혼잡도</td>
+            <td style="text-align:right;"><b>{row['예상 혼잡도']}</b></td>
+        </tr>
+    </table>
+</div>
+"""
     
     popup = Popup(popup_html, max_width=220)
 
