@@ -129,7 +129,7 @@ if selected_sido:
             base_df = base_df.dropna(subset=["위도", "경도"])
 
             m = folium.Map(location=[base_df["위도"].mean(), base_df["경도"].mean()], zoom_start=7)
-            congestion_color = {"여유": "green", "보통": "orange", "붐빔": "red"}
+            congestion_color = {"여유": "green", "보통": "orange", "혼잡": "red"}
 
             for _, row in base_df.iterrows():
                 folium.CircleMarker(
