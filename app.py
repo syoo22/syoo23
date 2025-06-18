@@ -165,6 +165,7 @@ if selected_sido:
                 st.markdown("<br>", unsafe_allow_html=True)
 
                 st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
+                
                 alt = df[
                     (df["시/도"] == row["시/도"].values[0]) &
                     (df["해수욕장일일일자"] == pd.to_datetime(selected_date)) &
@@ -175,12 +176,14 @@ if selected_sido:
                 if alt.empty:
                     st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
                 else:
-                    st.dataframe(alt.rename(columns={
+                    # ✅ 위도·경도 제외
+                    df_to_show = alt.drop(columns=["위도", "경도"]).rename(columns={
                         "시/군/구": "시/군/구",
                         "해수욕장이름": "해수욕장",
                         "예상 방문자수": "예상 방문자수(명)",
                         "예상 혼잡도": "혼잡도"
-                    }), hide_index=True)
+                    })
+                    st.dataframe(df_to_show, hide_index=True)
 
                 with st.container():
                     st.markdown("<h3 style='text-align:left;'>🏖️ 같은 시/도 내 덜 혼잡한 해수욕장 위치 보기</h3>", unsafe_allow_html=True)
