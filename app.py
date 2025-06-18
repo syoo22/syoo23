@@ -65,7 +65,7 @@ iframe {
 @media screen and (max-width: 600px) {
     .stApp {
         font-size: 13px !important;
-        padding: 0 3vw !important;
+        padding: 2vh 3vw !important;  /* ✅ 여기만 고쳐주면 됨 */
     }
     .title {
         font-size: 28px !important;
