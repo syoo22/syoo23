@@ -114,6 +114,10 @@ if selected_sido:
             latest_date = df["해수욕장일일일자"].max()
             base_df = df[df["해수욕장일일일자"] == latest_date]
 
+            # ✅ 위도/경도 float으로 변환
+            base_df["위도"] = pd.to_numeric(base_df["위도"], errors="coerce")
+            base_df["경도"] = pd.to_numeric(base_df["경도"], errors="coerce")
+
             m = folium.Map(location=[base_df["위도"].mean(), base_df["경도"].mean()], zoom_start=7)
             congestion_color = {"여유": "green", "보통": "orange", "붐빔": "red"}
 
