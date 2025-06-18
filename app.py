@@ -19,7 +19,7 @@ st.markdown("""
     background: linear-gradient(to bottom, #a6d9f7, #e4f8ff);
     font-family: 'Segoe UI', sans-serif;
     font-size: 16px;
-    padding: 0 5vw;
+    padding: 3vh 5vw;
 }
 
 /* ✅ 제목 & 부제목 */
