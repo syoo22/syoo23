@@ -115,10 +115,12 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
         st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
 
 # 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
-# ✅ 하단 흰 공간 제거용 CSS
+
+# ✅ 페이지 여백 제거용 CSS
 st.markdown("""
     <style>
     .block-container {
+        padding-top: 1rem !important;
         padding-bottom: 0rem !important;
     }
     </style>
@@ -154,6 +156,7 @@ def get_color_by_congestion(level):
         return "gray"
 
 # 마커 추가
+from folium import Popup
 for _, row in df_grouped.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
     
@@ -179,5 +182,8 @@ for _, row in df_grouped.iterrows():
 # 요약 문구 + 지도 출력
 beach_count = df_grouped['해수욕장이름'].nunique()
 st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
-st_data = st_folium(m, width="100%", height=580, returned_objects=[])
 
+# ✅ 가운데 정렬 + 여백 최소화
+col1, col2, col3 = st.columns([1, 6, 1])
+with col2:
+    st_data = st_folium(m, width="100%", height=520, returned_objects=[])
