@@ -176,7 +176,6 @@ if selected_sido:
                 if alt.empty:
                     st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
                 else:
-                    # ✅ 위도·경도 제외
                     df_to_show = alt.drop(columns=["위도", "경도"]).rename(columns={
                         "시/군/구": "시/군/구",
                         "해수욕장이름": "해수욕장",
