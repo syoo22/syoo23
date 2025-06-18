@@ -64,12 +64,26 @@ st.markdown("""
         padding-bottom: 0px !important;
         margin-bottom: 0px !important;
     }
+
     iframe {
         display: block;
         margin: 0 auto;
     }
+
     .block-container {
         padding-bottom: 0rem !important;
+    }
+
+        /* ✅ 추가: html/body 및 최상위 block 여백 제거 */
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden;
+    }
+
+    section.main > div.block-container {
+        padding-bottom: 0rem !important;
+        margin-bottom: 0rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
