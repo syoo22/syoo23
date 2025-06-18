@@ -19,7 +19,10 @@ st.markdown("""
     background: linear-gradient(to bottom, #a6d9f7, #e4f8ff);
     font-family: 'Segoe UI', sans-serif;
     font-size: 16px;
-    padding: 3vh 5vw;
+    padding-top: 5vh !important;  /* ✅ 상단 여백 추가 */
+    padding-left: 5vw;
+    padding-right: 5vw;
+    padding-bottom: 0;
 }
 
 /* ✅ 제목 & 부제목 */
@@ -65,7 +68,9 @@ iframe {
 @media screen and (max-width: 600px) {
     .stApp {
         font-size: 13px !important;
-        padding: 2vh 3vw !important;  /* ✅ 여기만 고쳐주면 됨 */
+        padding-top: 5vh !important;  /* ✅ 여기도 추가 */
+        padding-left: 3vw !important;
+        padding-right: 3vw !important;
     }
     .title {
         font-size: 28px !important;
