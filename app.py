@@ -116,11 +116,10 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
 
 # 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
 
-# ✅ 페이지 여백 제거용 CSS
+# ✅ 페이지 하단 여백만 제거 (상단은 유지!)
 st.markdown("""
     <style>
     .block-container {
-        padding-top: 1rem !important;
         padding-bottom: 0rem !important;
     }
     </style>
@@ -187,3 +186,4 @@ st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 �
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     st_data = st_folium(m, width="100%", height=520, returned_objects=[])
+
