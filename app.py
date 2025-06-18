@@ -116,7 +116,7 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
 
 # 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
 
-# ✅ 페이지 하단 여백만 제거 (상단은 유지!)
+# ✅ 페이지 하단 여백 제거 (상단은 유지)
 st.markdown("""
     <style>
     .block-container {
@@ -128,6 +128,10 @@ st.markdown("""
 st.markdown("---")
 st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
+# ✅ 사용자가 지도에 표시할 시/도 선택
+st.markdown("#### 🗺️ 지도에 표시할 지역 선택")
+selected_map_sido = st.selectbox("지도에 표시할 시/도 선택", ["전체"] + sido_list)
+
 # 해수욕장별 평균 혼잡도 데이터 준비
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False).agg({
     '예상 방문자수': 'sum',
@@ -138,10 +142,17 @@ df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=Fal
 df_grouped['위도'] = pd.to_numeric(df_grouped['위도'], errors='coerce')
 df_grouped['경도'] = pd.to_numeric(df_grouped['경도'], errors='coerce')
 
+# ✅ 지도에 표시할 데이터 필터링
+if selected_map_sido == "전체":
+    map_df = df_grouped.copy()
+else:
+    allowed_beaches = df[df["시/도"] == selected_map_sido]["해수욕장이름"].unique()
+    map_df = df_grouped[df_grouped["해수욕장이름"].isin(allowed_beaches)]
+
 # 지도 중심 설정
-center_lat = df_grouped['위도'].mean()
-center_lon = df_grouped['경도'].mean()
-m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
+center_lat = map_df['위도'].mean()
+center_lon = map_df['경도'].mean()
+m = folium.Map(location=[center_lat, center_lon], zoom_start=7)
 
 # 혼잡도 → 색상 변환 함수
 def get_color_by_congestion(level):
@@ -156,7 +167,7 @@ def get_color_by_congestion(level):
 
 # 마커 추가
 from folium import Popup
-for _, row in df_grouped.iterrows():
+for _, row in map_df.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
     
     popup_html = f"""
@@ -179,10 +190,10 @@ for _, row in df_grouped.iterrows():
     ).add_to(m)
 
 # 요약 문구 + 지도 출력
-beach_count = df_grouped['해수욕장이름'].nunique()
-st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 지도입니다.")
+beach_count = map_df['해수욕장이름'].nunique()
+st.markdown(f"✅ 현재 지도에는 **{beach_count}개 해수욕장**이 표시되어 있습니다.")
 
-# ✅ 가운데 정렬 + 여백 최소화
+# 가운데 정렬
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     st_data = st_folium(m, width="100%", height=520, returned_objects=[])
