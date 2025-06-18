@@ -128,9 +128,12 @@ st.markdown("""
 st.markdown("---")
 st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
+# ✅ 지도 필터용 시/도 리스트 따로 다시 정의 (중요!)
+sido_list_for_map = sorted(df["시/도"].dropna().unique())
+
 # ✅ 사용자가 지도에 표시할 시/도 선택
 st.markdown("#### 🗺️ 지도에 표시할 지역 선택")
-selected_map_sido = st.selectbox("지도에 표시할 시/도 선택", ["전체"] + sido_list)
+selected_map_sido = st.selectbox("지도에 표시할 시/도 선택", ["전체"] + sido_list_for_map)
 
 # 해수욕장별 평균 혼잡도 데이터 준비
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False).agg({
@@ -197,4 +200,5 @@ st.markdown(f"✅ 현재 지도에는 **{beach_count}개 해수욕장**이 표�
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     st_data = st_folium(m, width="100%", height=520, returned_objects=[])
+
 
