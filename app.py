@@ -117,42 +117,46 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
 st.markdown("---")
 st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
-# 해수욕장별 총 방문자수 합산
-df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False)['예상 방문자수'].sum()
+# 해수욕장별 평균 혼잡도 데이터 준비
+df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False).agg({
+    '예상 방문자수': 'sum',
+    '예상 혼잡도': lambda x: x.mode()[0] if not x.mode().empty else "정보 없음"
+})
 
 # 위도/경도 숫자형 변환
 df_grouped['위도'] = pd.to_numeric(df_grouped['위도'], errors='coerce')
 df_grouped['경도'] = pd.to_numeric(df_grouped['경도'], errors='coerce')
-
-# 로그 스케일 컬럼 생성
-df_grouped['log_visitors'] = np.log1p(df_grouped['예상 방문자수'])
 
 # 지도 중심 설정
 center_lat = df_grouped['위도'].mean()
 center_lon = df_grouped['경도'].mean()
 m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
 
-# 색상 컬러맵 설정 (로그 스케일 기반)
-min_val = df_grouped['log_visitors'].min()
-max_val = df_grouped['log_visitors'].max()
-colormap = cm.linear.YlOrRd_09.scale(min_val, max_val)
-colormap.caption = '2025년 예상 방문자수 (혼잡도)'
-colormap.tick_format = '~g'
+# 혼잡도 → 색상 변환 함수
+def get_color_by_congestion(level):
+    if level == "여유":
+        return "green"
+    elif level == "보통":
+        return "orange"
+    elif level == "혼잡":
+        return "red"
+    else:
+        return "gray"
 
 # 마커 추가
 for _, row in df_grouped.iterrows():
+    color = get_color_by_congestion(row["예상 혼잡도"])
     folium.CircleMarker(
         location=[row['위도'], row['경도']],
         radius=7,
-        color=colormap(row['log_visitors']),
+        color=color,
         fill=True,
         fill_opacity=0.7,
-        popup=f"{row['해수욕장이름']}: {int(row['예상 방문자수']):,}명"
+        popup=f"{row['해수욕장이름']}<br>예상 방문자수: {int(row['예상 방문자수']):,}명<br>혼잡도: {row['예상 혼잡도']}"
     ).add_to(m)
-
-m.add_child(colormap)
 
 # 요약 문구 + 지도 출력
 beach_count = df_grouped['해수욕장이름'].nunique()
 st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
-st_data = st_folium(m, width=800, height=600)
+st_data = st_folium(m, width="100%", height=600)
+
