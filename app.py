@@ -11,7 +11,7 @@ from folium import Popup
 # 1️⃣ 페이지 기본 설정 ─────────────────────────────────────────────
 st.set_page_config(page_title="혼잡한 바다는 SEA러!", layout="wide")
 
-# 2️⃣ CSS 스타일 ──────────────────────────────────────────────────
+# 2️⃣ CSS 스타일 + 제목/부제목/설명 통합 ──────────────────────────────
 st.markdown("""
 <style>
 .stApp {
@@ -20,22 +20,39 @@ st.markdown("""
     padding: 0 5vw;
 }
 .title {
-    text-align:center; font-size:40px; font-weight:800; color:#003366;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 800;
+    color: #003366;
 }
-.title .blue { color:#0066ff; }
+.title .blue { color: #0066ff; }
 .subtitle {
-    text-align:center; font-size:17px; color:#004080; margin-bottom:2rem;
+    text-align: center;
+    font-size: 17px;
+    color: #004080;
+    margin-bottom: 0.5rem;
+}
+.description {
+    text-align: center;
+    font-size: 15px;
+    color: #333333;
+    margin-bottom: 2rem;
 }
 .result-card {
-    background:#ffffffdd; padding:20px; border-radius:10px;
-    box-shadow:0 4px 8px rgba(0,0,0,0.1); max-width:600px; margin:20px auto;
+    background: #ffffffdd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 20px auto;
 }
 </style>
+
+<div class="title">🌊 혼잡한 바다는 <span class="blue">SEA</span>러!</div>
+<div class="subtitle">해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>
+<div class="description">이 서비스는 여름철 <b>해수욕장 혼잡 문제</b>를 해결하기 위한 <b>공공 예측 서비스</b>입니다.</div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="title">🌊 혼잡한 바다는 <span class="blue">SEA</span>러!</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!</div>', unsafe_allow_html=True)
-st.markdown('<div class="description">이 서비스는 여름철 <b>해수욕장 혼잡 문제</b>를 해결하기 위한 <b>공공 예측 서비스</b>입니다.</div>', unsafe_allow_html=True)
 
 # 3️⃣ 데이터 로딩 ─────────────────────────────────────────────────
 @st.cache_data
