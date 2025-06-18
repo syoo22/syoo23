@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from datetime import date
 import folium
 from folium import CircleMarker
@@ -37,7 +38,7 @@ st.markdown('<div class="subtitle">해수욕장과 날짜를 선택하면 예상
 # 3️⃣ 데이터 로딩 ─────────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    df = pd.read_csv("beach_prediction_2025.csv")  # CSV 파일명을 영어로 바꿔서 관리하는 게 안전함
+    df = pd.read_csv("beach_prediction_2025.csv")
     df["해수욕장일일일자"] = pd.to_datetime(df["해수욕장일일일자"])
     return df
 
@@ -119,32 +120,36 @@ st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 # 해수욕장별 총 방문자수 합산
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False)['예상 방문자수'].sum()
 
-# ✅ 위도/경도 숫자형으로 변환
+# 위도/경도 숫자형 변환
 df_grouped['위도'] = pd.to_numeric(df_grouped['위도'], errors='coerce')
 df_grouped['경도'] = pd.to_numeric(df_grouped['경도'], errors='coerce')
+
+# 로그 스케일 컬럼 생성
+df_grouped['log_visitors'] = np.log1p(df_grouped['예상 방문자수'])
 
 # 지도 중심 설정
 center_lat = df_grouped['위도'].mean()
 center_lon = df_grouped['경도'].mean()
 m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
 
-# 색상 컬러맵 설정
-min_val = df_grouped['예상 방문자수'].min()
-max_val = df_grouped['예상 방문자수'].max()
+# 색상 컬러맵 설정 (로그 스케일 기반)
+min_val = df_grouped['log_visitors'].min()
+max_val = df_grouped['log_visitors'].max()
 colormap = cm.linear.YlOrRd_09.scale(min_val, max_val)
+colormap.caption = '2025년 예상 방문자수 (혼잡도)'
+colormap.tick_format = '~g'
 
 # 마커 추가
 for _, row in df_grouped.iterrows():
     folium.CircleMarker(
         location=[row['위도'], row['경도']],
         radius=7,
-        color=colormap(row['예상 방문자수']),
+        color=colormap(row['log_visitors']),
         fill=True,
         fill_opacity=0.7,
         popup=f"{row['해수욕장이름']}: {int(row['예상 방문자수']):,}명"
     ).add_to(m)
 
-colormap.caption = '2025년 예상 방문자수 (혼잡도)'
 m.add_child(colormap)
 
 # 요약 문구 + 지도 출력
