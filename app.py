@@ -140,4 +140,4 @@ if selected_sido:
                             )
                         ).add_to(m)
 
-                    st_folium(m, use_container_width=True, height=600)
+                    st_folium(m, use_container_width=True, height=450)
