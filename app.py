@@ -107,6 +107,14 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
+        # 🔄 session state 초기화
+        if "show_result" not in st.session_state:
+            st.session_state.show_result = False
+
+        if st.button("🔍 예측 결과 보기"):
+            st.session_state.show_result = True
+            
+
         # ✅ ✅ ✅ 바로 여기 아래에 초기 지도 조건 넣으면 됨!
         if not st.session_state.get("show_result"):
             st.markdown("### 🗺️ 2025년 전체 해수욕장 혼잡도 지도")
@@ -138,12 +146,6 @@ if selected_sido:
 
             st_folium(m, use_container_width=True, height=450)
 
-        # 🔄 session state 초기화
-        if "show_result" not in st.session_state:
-            st.session_state.show_result = False
-
-        if st.button("🔍 예측 결과 보기"):
-            st.session_state.show_result = True
 
         # 🔍 예측 결과 출력
         if st.session_state.show_result:
