@@ -118,6 +118,8 @@ if selected_sido:
             base_df["위도"] = pd.to_numeric(base_df["위도"], errors="coerce")
             base_df["경도"] = pd.to_numeric(base_df["경도"], errors="coerce")
 
+            base_df = base_df.dropna(subset=["위도", "경도"])
+
             m = folium.Map(location=[base_df["위도"].mean(), base_df["경도"].mean()], zoom_start=7)
             congestion_color = {"여유": "green", "보통": "orange", "붐빔": "red"}
 
