@@ -139,7 +139,7 @@ if selected_sido:
                             )
                         ).add_to(m)
 
-                    st_folium(m, use_container_width=True, height=500)s
+                    st_folium(m, use_container_width=True, height=500)
 
             else:
                 st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
