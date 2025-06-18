@@ -107,6 +107,31 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
+        # ✅ ✅ ✅ 바로 여기 아래에 초기 지도 조건 넣으면 됨!
+        if not st.session_state.get("show_result"):
+            st.markdown("### 🗺️ 2025년 전체 해수욕장 혼잡도 지도")
+
+            latest_date = df["해수욕장일일일자"].max()
+            base_df = df[df["해수욕장일일일자"] == latest_date]
+
+            m = folium.Map(location=[base_df["위도"].mean(), base_df["경도"].mean()], zoom_start=7)
+            congestion_color = {"여유": "green", "보통": "orange", "붐빔": "red"}
+
+            for _, row in base_df.iterrows():
+                folium.CircleMarker(
+                    location=(row["위도"], row["경도"]),
+                    radius=6,
+                    color=congestion_color.get(row["예상 혼잡도"], "gray"),
+                    fill=True,
+                    fill_opacity=0.7,
+                    popup=folium.Popup(
+                        f"<b>{row['해수욕장이름']}</b><br>👥 {int(row['예상 방문자수'])}명<br>혼잡도: {row['예상 혼잡도']}",
+                        max_width=200
+                    )
+                ).add_to(m)
+
+            st_folium(m, use_container_width=True, height=450)
+
         # 🔄 session state 초기화
         if "show_result" not in st.session_state:
             st.session_state.show_result = False
