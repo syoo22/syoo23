@@ -134,32 +134,30 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
 
 # 7️⃣ 혼잡도 지도 시각화 ─────────────────────────────────────────
 
-# ✅ 페이지 하단 여백 제거 (상단은 유지)
+# ✅ 페이지 하단 여백 제거
 st.markdown("""
-    <style>
-    .block-container {
-        padding-bottom: 0rem !important;
-    }
-    </style>
+<style>
+.block-container {
+    padding-bottom: 0rem !important;
+}
+</style>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
 
-# ✅ 지도 필터용 시/도 리스트 따로 다시 정의
+# ✅ 지도 필터용 시/도 리스트
 sido_list_for_map = sorted(df["시/도"].dropna().unique())
 
 # ✅ 사용자 필터 선택
 st.markdown("#### 🗺️ 지도에 표시할 지역 선택")
 selected_map_sido = st.selectbox("지도에 표시할 시/도 선택", ["전체"] + sido_list_for_map)
 
-# 해수욕장별 평균 혼잡도 데이터 준비
+# ✅ 해수욕장별 평균 혼잡도 데이터
 df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False).agg({
     '예상 방문자수': 'sum',
     '예상 혼잡도': lambda x: x.mode()[0] if not x.mode().empty else "정보 없음"
 })
-
-# 위도/경도 숫자형 변환
 df_grouped['위도'] = pd.to_numeric(df_grouped['위도'], errors='coerce')
 df_grouped['경도'] = pd.to_numeric(df_grouped['경도'], errors='coerce')
 
@@ -170,12 +168,12 @@ else:
     allowed_beaches = df[df["시/도"] == selected_map_sido]["해수욕장이름"].unique()
     map_df = df_grouped[df_grouped["해수욕장이름"].isin(allowed_beaches)]
 
-# 지도 중심 설정
+# ✅ 지도 중심 설정
 center_lat = map_df['위도'].mean()
 center_lon = map_df['경도'].mean()
 m = folium.Map(location=[center_lat, center_lon], zoom_start=7)
 
-# 혼잡도 → 색상 변환 함수
+# ✅ 혼잡도 → 색상
 def get_color_by_congestion(level):
     if level == "여유":
         return "green"
@@ -189,7 +187,6 @@ def get_color_by_congestion(level):
 # ✅ 마커 추가
 for _, row in map_df.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
-
     popup_html = f"""
     <div style="width:220px;">
         <b>{row['해수욕장이름']}</b>
@@ -205,24 +202,36 @@ for _, row in map_df.iterrows():
         </table>
     </div>
     """
-
-    popup = Popup(popup_html, max_width=220)
-
     folium.CircleMarker(
         location=[row['위도'], row['경도']],
         radius=7,
         color=color,
         fill=True,
         fill_opacity=0.7,
-        popup=popup
+        popup=folium.Popup(popup_html, max_width=220)
     ).add_to(m)
 
-# ✅ 요약 문구 + 지도 출력
+# ✅ 요약 문구 출력
 beach_count = map_df['해수욕장이름'].nunique()
 st.markdown(f"✅ 현재 지도에는 **{beach_count}개 해수욕장**이 표시되어 있습니다.")
 
-# ✅ 지도 바로 출력 (전체 너비 사용)
+# ✅ 스타일로 하단 여백 제거
+st.markdown("""
+<style>
+iframe {
+    display: block;
+    margin: auto;
+    padding-bottom: 0 !important;
+}
+.folium-map {
+    margin-bottom: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ✅ 지도 출력
 st_folium(m, width="100%", height=520, returned_objects=[])
+
 
 
 
