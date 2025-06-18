@@ -170,7 +170,7 @@ if selected_sido:
                     (df["해수욕장일일일자"] == pd.to_datetime(selected_date)) &
                     (df["예상 혼잡도"].isin(["여유", "보통"])) &
                     (df["해수욕장이름"] != selected_beach)
-                ][["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도"]].sort_values("예상 방문자수")
+                ][["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도", "위도", "경도"]].sort_values("예상 방문자수")
 
                 if alt.empty:
                     st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
