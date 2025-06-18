@@ -187,13 +187,22 @@ def get_color_by_congestion(level):
 # ✅ 마커 추가
 for _, row in map_df.iterrows():
     color = get_color_by_congestion(row["예상 혼잡도"])
+    
     popup_html = f"""
-    <div style="width:260px;">
+    <div style="width:260px; word-break:keep-all;">
         <b>{row['해수욕장이름']}</b>
-        <table style="margin-top:5px; width:100%; table-layout: fixed;">
+        <table style="margin-top:5px; width:100%; table-layout:fixed; border-collapse:collapse;">
+            <colgroup>
+                <col style="width:55%;">
+                <col style="width:45%;">
+            </colgroup>
             <tr>
-                <td style="white-space:nowrap;">👥 예상 방문자수</td>
-                <td style="text-align:right; white-space:nowrap;">{int(row['예상 방문자수']):,}명</td>
+                <td style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    👥 예상 방문자수
+                </td>
+                <td style="text-align:right; white-space:nowrap;">
+                    {int(row['예상 방문자수']):,}명
+                </td>
             </tr>
             <tr>
                 <td style="white-space:nowrap;">🚦 혼잡도</td>
@@ -202,14 +211,16 @@ for _, row in map_df.iterrows():
         </table>
     </div>
     """
+
     folium.CircleMarker(
         location=[row['위도'], row['경도']],
         radius=7,
         color=color,
         fill=True,
         fill_opacity=0.7,
-        popup=folium.Popup(popup_html, max_width=220)
+        popup=folium.Popup(popup_html, max_width=280)  # ← 여기도 260~280으로 약간 늘려줘
     ).add_to(m)
+
 
 # ✅ 요약 문구 출력
 beach_count = map_df['해수욕장이름'].nunique()
