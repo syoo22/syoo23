@@ -170,5 +170,5 @@ for _, row in df_grouped.iterrows():
 # 요약 문구 + 지도 출력
 beach_count = df_grouped['해수욕장이름'].nunique()
 st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
-st_data = st_folium(m, width="100%", height=600)
+st_data = st_folium(m, width="100%", height=600, returned_objects=[])
 
