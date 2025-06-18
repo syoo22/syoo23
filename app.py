@@ -220,18 +220,16 @@ st.markdown("""
 <style>
 iframe {
     display: block;
-    margin: auto;
-    padding-bottom: 0 !important;
+    margin: 0 auto;
+    padding: 0 !important;
 }
 .folium-map {
-    margin-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ✅ 지도 출력
-st_folium(m, width="100%", height=520, returned_objects=[])
-
-
-
-
+# ✅ 지도 출력 (높이도 반응형으로 개선)
+st_folium(m, width="100%", height="70vh", returned_objects=[])
