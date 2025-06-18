@@ -221,10 +221,8 @@ for _, row in map_df.iterrows():
 beach_count = map_df['해수욕장이름'].nunique()
 st.markdown(f"✅ 현재 지도에는 **{beach_count}개 해수욕장**이 표시되어 있습니다.")
 
-# ✅ 지도 가운데 정렬
-col1, col2, col3 = st.columns([1, 6, 1])
-with col2:
-    st_data = st_folium(m, width="100%", height=520, returned_objects=[])
+# ✅ 지도 바로 출력 (전체 너비 사용)
+st_folium(m, width="100%", height=520, returned_objects=[])
 
 
 
