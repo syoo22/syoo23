@@ -161,6 +161,9 @@ if selected_sido:
                     unsafe_allow_html=True
                 )
 
+                # ✅ 여백 추가
+                st.markdown("<br>", unsafe_allow_html=True)
+
                 st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
                 alt = df[
                     (df["시/도"] == row["시/도"].values[0]) &
