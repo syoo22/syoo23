@@ -127,3 +127,53 @@ if st.button("🔍 예측 결과 보기") and selected_beach and selected_date:
             )
     else:
         st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
+
+
+        # ==========================
+# 📍 혼잡도 지도 시각화 코드
+# ==========================
+
+import folium
+from folium import CircleMarker
+from streamlit_folium import st_folium
+import branca.colormap as cm
+
+# CSV 불러오기
+df = pd.read_csv("2025_해수욕장_예측결과_최종.csv")
+
+# 해수욕장별 총 방문자수 집계
+df_grouped = df.groupby(['해수욕장이름', '위도', '경도'], as_index=False)['예상 방문자수'].sum()
+
+# 지도 중심 위치
+center_lat = df_grouped['위도'].mean()
+center_lon = df_grouped['경도'].mean()
+m = folium.Map(location=[center_lat, center_lon], zoom_start=6)
+
+# 색상 맵 설정
+min_val = df_grouped['예상 방문자수'].min()
+max_val = df_grouped['예상 방문자수'].max()
+colormap = cm.linear.YlOrRd_09.scale(min_val, max_val)
+
+# 마커 추가
+for _, row in df_grouped.iterrows():
+    folium.CircleMarker(
+        location=[row['위도'], row['경도']],
+        radius=7,
+        color=colormap(row['예상 방문자수']),
+        fill=True,
+        fill_opacity=0.7,
+        popup=f"{row['해수욕장이름']}: {int(row['예상 방문자수']):,}명"
+    ).add_to(m)
+
+colormap.caption = '2025년 예상 방문자수 (혼잡도)'
+m.add_child(colormap)
+
+# Streamlit 출력
+st.markdown("---")
+st.subheader("📍 2025년 예상 방문자수 기반 혼잡도 지도")
+
+beach_count = df_grouped['해수욕장이름'].nunique()
+st.markdown(f"✅ 전국 **{beach_count}개 해수욕장**을 대상으로 한 혼잡도 시각화입니다.")
+
+st_data = st_folium(m, width=800, height=600)
+
