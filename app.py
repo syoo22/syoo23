@@ -180,7 +180,7 @@ if selected_sido:
                     }), hide_index=True)
 
                 with st.container():
-                    st.markdown("<h3 style='text-align:center;'>🌍 덜 혼잡한 해수욕장 위치 보기</h3>", unsafe_allow_html=True)
+                    st.markdown("<h3 style='text-align:center;'>🏖️ 같은 시/도 내 덜 혼잡한 해수욕장 위치 보기</h3>", unsafe_allow_html=True)
 
                     selected_loc = row[["위도", "경도"]].values[0]
                     m = folium.Map(location=selected_loc, zoom_start=10)
