@@ -80,83 +80,30 @@ if selected_sido:
 
         selected_date = st.date_input("📅 방문 날짜를 선택하세요", value=open_date, min_value=open_date, max_value=close_date)
 
-# 1. 버튼 상태 세션으로 관리
-if "show_result" not in st.session_state:
-    st.session_state.show_result = False
+        if st.button("🔍 예측 결과 보기"):
+            row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
+            if not row.empty:
+                visitors = int(row["예상 방문자수"].values[0])
+                level = row["예상 혼잡도"].values[0]
+                st.markdown(f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>👥 예상 방문자수: <b>{visitors:,}명</b><br>🔵 예상 혼잡도: <b>{level}</b></div>", unsafe_allow_html=True)
 
-if st.button("🔍 예측 결과 보기"):
-    st.session_state.show_result = True
+                # 추천 출력
+                st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
+                alt = df[
+                    (df["시/도"] == row["시/도"].values[0]) &
+                    (df["해수욕장일일일자"] == pd.to_datetime(selected_date)) &
+                    (df["예상 혼잡도"].isin(["여유", "보통"])) &
+                    (df["해수욕장이름"] != selected_beach)
+                ][["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도"]].sort_values("예상 방문자수")
 
-# 2. 버튼 클릭 후 유지되는 결과 블럭
-if st.session_state.show_result:
-    row = df[(df["해수욕장이름"] == selected_beach) & (df["해수욕장일일일자"] == pd.to_datetime(selected_date))]
-    if not row.empty:
-        visitors = int(row["예상 방문자수"].values[0])
-        level = row["예상 혼잡도"].values[0]
-
-        st.markdown(
-            f"<div class='result-card'><h4>📅 {selected_date} {selected_beach}의 예측 결과</h4><br>"
-            f"👥 예상 방문자수: <b>{visitors:,}명</b><br>"
-            f"🔵 예상 혼잡도: <b>{level}</b></div>",
-            unsafe_allow_html=True
-        )
-
-        # 추천 해수욕장 필터링
-        st.markdown("### 🧭 같은 시/도 내 덜 혼잡한 해수욕장 추천")
-        alt = df[
-            (df["시/도"] == row["시/도"].values[0]) &
-            (df["해수욕장일일일자"] == pd.to_datetime(selected_date)) &
-            (df["예상 혼잡도"].isin(["여유", "보통"])) &
-            (df["해수욕장이름"] != selected_beach)
-        ][["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도", "위도", "경도"]].sort_values("예상 방문자수")
-
-        if alt.empty:
-            st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
-        else:
-            st.write("✅ 추천 해수욕장 원본 데이터:")
-            st.dataframe(alt)  # 원본 미리 확인
-
-            # 컬럼명 확인 후 rename 적용
-            expected_cols = ["시/군/구", "해수욕장이름", "예상 방문자수", "예상 혼잡도"]
-            if all(col in alt.columns for col in expected_cols):
-                df_to_show = alt.rename(columns={
-                    "시/군/구": "시/군/구",
-                    "해수욕장이름": "해수욕장",
-                    "예상 방문자수": "예상 방문자수(명)",
-                    "예상 혼잡도": "혼잡도"
-                })
-                st.dataframe(df_to_show, hide_index=True)
+                if alt.empty:
+                    st.info("같은 시/도 내에 덜 혼잡한 다른 해수욕장이 없어요 😥")
+                else:
+                    st.dataframe(alt.rename(columns={
+                        "시/군/구": "시/군/구",
+                        "해수욕장이름": "해수욕장",
+                        "예상 방문자수": "예상 방문자수(명)",
+                        "예상 혼잡도": "혼잡도"
+                    }), hide_index=True)
             else:
-                st.warning("❗ 예상한 컬럼명이 일부 누락되어 정리된 표로 출력할 수 없습니다.")
-
-            # ✅ 지도 시각화 추가
-            st.markdown("### 🗺️ 덜 혼잡한 해수욕장 위치 보기")
-
-            selected_loc = row[["위도", "경도"]].values[0]
-            m = folium.Map(location=selected_loc, zoom_start=10)
-
-            congestion_color = {"여유": "green", "보통": "orange"}
-
-            for _, r in alt.iterrows():
-                name = r["해수욕장이름"]
-                visitors = int(r["예상 방문자수"])
-                level = r["예상 혼잡도"]
-                lat = r["위도"]
-                lon = r["경도"]
-
-                folium.CircleMarker(
-                    location=(lat, lon),
-                    radius=8,
-                    color=congestion_color.get(level, "gray"),
-                    fill=True,
-                    fill_opacity=0.7,
-                    popup=folium.Popup(
-                        f"<b>{name}</b><br>👥 {visitors:,}명<br>혼잡도: {level}",
-                        max_width=250
-                    )
-                ).add_to(m)
-
-            st_folium(m, width=700, height=500)
-
-    else:
-        st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
+                st.warning("해당 날짜에 대한 예측 데이터가 없습니다.")
