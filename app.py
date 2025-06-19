@@ -92,8 +92,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 제목
-st.markdown("<div class='title'>🏖️ 2025 해수욕장 방문자 예측 시스템</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>이 서비스는 해수욕장 혼잡 문제를 해결하기 위한 공공 예측 서비스입니다.</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'>🏖️ 혼잡한 바다는 SEA러! </div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>이 서비스는 해수욕장 혼잡 문제를 해결하기 위해 제작된 해수욕장 방문자 예측 공공 서비스입니다.</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; font-size:17px; margin-bottom:1rem;'>📍 해수욕장과 날짜를 선택하면 예상 방문자수와 혼잡도를 알려드려요!.</p>", unsafe_allow_html=True)
 
 # 선택 영역
