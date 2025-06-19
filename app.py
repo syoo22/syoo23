@@ -115,7 +115,7 @@ if selected_sido:
             st.session_state.show_result = True
             
 
-        # ✅ ✅ ✅ 바로 여기 아래에 초기 지도 조건 넣으면 됨!
+        # 지도 시각화
         if not st.session_state.get("show_result"):
             st.markdown("### 🗺️ 2025년 전체 해수욕장 혼잡도 지도")
 
@@ -144,7 +144,7 @@ if selected_sido:
                     )
                 ).add_to(m)
 
-            st_folium(m, use_container_width=True, height=450)
+            st_folium(m, use_container_width=True, height=600)
 
 
         # 🔍 예측 결과 출력
