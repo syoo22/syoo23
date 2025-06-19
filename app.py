@@ -31,29 +31,57 @@ beach_dict = {
 # 스타일
 st.markdown("""
     <style>
-    iframe {
-        display: block;
-        margin: 0 auto;
-        height: 600px !important;                /* 지도 높이 고정 */
-        margin-bottom: -40px !important;         /* 하단 여백 줄이기 */
-        padding-bottom: 0px !important;
+    .stApp {
+        background: linear-gradient(to bottom, #a2d4f7, #e0f7fa);
+        font-family: 'Helvetica', sans-serif;
+        padding: 0 5vw;
     }
-
-    /* ✅ 지도 들어간 최상위 block 여백 제거 */
+    .title {
+        text-align: center;
+        font-size: 36px;
+        font-weight: 700;
+        color: #003366;
+        margin-bottom: 0.2em;
+    }
+    .subtitle {
+        text-align: center;
+        font-size: 16px;
+        color: #004080;
+        margin-bottom: 1.5em;
+    }
+    .result-card {
+        background-color: #ffffffdd;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    /* ✅ 추가: 지도 아래 흰 여백 제거용 */
     .element-container:has(iframe) {
         padding-bottom: 0px !important;
-        margin-bottom: -20px !important;
+        margin-bottom: 0px !important;
     }
 
-    /* ✅ 페이지 전체 여백 제거 */
+    iframe {
+    display: block;
+    margin: 0 auto;
+    height: 600px !important;
+    margin-bottom: -20px !important; /* ✅ 하단 공백 강제 제거 */
+    padding-bottom: 0px !important;
+    }
+
     .block-container {
         padding-bottom: 0rem !important;
-        margin-bottom: 0rem !important;
     }
 
+        /* ✅ 추가: html/body 및 최상위 block 여백 제거 */
     html, body {
         margin: 0 !important;
         padding: 0 !important;
+        overflow-x: hidden;
     }
 
     section.main > div.block-container {
@@ -62,7 +90,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
 
 # 제목
 st.markdown("<div class='title'>🏖️ 2025 해수욕장 방문자 예측 시스템</div>", unsafe_allow_html=True)
