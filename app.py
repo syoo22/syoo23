@@ -66,8 +66,11 @@ st.markdown("""
     }
 
     iframe {
-        display: block;
-        margin: 0 auto;
+    display: block;
+    margin: 0 auto;
+    height: 100% !important;
+    margin-bottom: -60px !important; /* ✅ 하단 공백 강제 제거 */
+    padding-bottom: 0px !important;
     }
 
     .block-container {
